@@ -68,21 +68,30 @@ namespace DatabaseAccessController
 
         public int DeleteOrder(int customerID, int toyID)
         {
-            string sqlCmd = @"
-                DELETE FROM orders
-                WHERE customerID = @customerID AND toy_id = @toyID
-            ";
-
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand(sqlCmd, conn))
+                    string deleteShippingSql = @"
+                DELETE FROM shipping
+                WHERE order_id IN (SELECT order_id FROM orders WHERE customerID = @customerID AND toy_id = @toyID)
+            ";
+                    using (MySqlCommand shippingCmd = new MySqlCommand(deleteShippingSql, conn))
                     {
-                        cmd.Parameters.AddWithValue("@customerID", customerID);
-                        cmd.Parameters.AddWithValue("@toyID", toyID);
-                        return cmd.ExecuteNonQuery();
+                        shippingCmd.Parameters.AddWithValue("@customerID", customerID);
+                        shippingCmd.Parameters.AddWithValue("@toyID", toyID);
+                        shippingCmd.ExecuteNonQuery();
+                    }
+                    string deleteOrderSql = @"
+                DELETE FROM orders
+                WHERE customerID = @customerID AND toy_id = @toyID
+            ";
+                    using (MySqlCommand orderCmd = new MySqlCommand(deleteOrderSql, conn))
+                    {
+                        orderCmd.Parameters.AddWithValue("@customerID", customerID);
+                        orderCmd.Parameters.AddWithValue("@toyID", toyID);
+                        return orderCmd.ExecuteNonQuery();
                     }
                 }
                 catch (Exception)

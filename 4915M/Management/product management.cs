@@ -44,12 +44,11 @@ namespace _4915M
         {
             if (dataGridView1.SelectedRows.Count > 0)
             {
-                int toyID = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["ToyID"].Value);
+                int columnIndex = 0;
+                int toyID = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells[columnIndex].Value);
 
                 OrderModify modifyForm = new OrderModify(this);
-
                 modifyForm.SetToyID(toyID);
-
                 modifyForm.ShowDialog();
             }
             else

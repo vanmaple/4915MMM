@@ -7,7 +7,7 @@ namespace _4915M.新文件夹
 {
     public partial class OrderModify : Form
     {
-        private string connectionString = "Server=localhost;Database=yourdbname;Uid=yourusername;Pwd=yourpassword;";
+        private string connectionString = "server=localhost;port=3306;user id=root;password=;database=company;charset=utf8;";
         private dboToyOrderController orderController;
         private pManagement parentForm;
 
