@@ -6,7 +6,7 @@ namespace DatabaseAccessController
 {
     public class dboShippingController
     {
-        private readonly string _connectionString;
+        public readonly string _connectionString;
 
         public dboShippingController(string connectionString)
         {

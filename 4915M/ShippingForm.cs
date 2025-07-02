@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows.Forms;
 using DatabaseAccessController;
+using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Asn1.Cmp;
 
 namespace ShippingApp
@@ -9,6 +10,7 @@ namespace ShippingApp
     public partial class ShippingForm : Form
     {
         private readonly dboShippingController _controller;
+        private string connectionString;
 
         public ShippingForm()
         {
@@ -48,6 +50,12 @@ namespace ShippingApp
                 return;
             }
 
+            if (!IsOrderIdExists(orderId))
+            {
+                MessageBox.Show("The provided order ID does not exist.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var trackingNumber = txtTrackingNumber.Text;
             var courier = cmbCourier.Text;
             var status = cmbStatus.Text;
@@ -71,6 +79,25 @@ namespace ShippingApp
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
+
+        private bool IsOrderIdExists(int orderId)
+        {
+            string sqlCmd = @"
+        SELECT COUNT(*) 
+        FROM orders 
+        WHERE order_id = @OrderId";
+
+            using (MySqlConnection conn = new MySqlConnection(_controller._connectionString))
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(sqlCmd, conn))
+                {
+                    cmd.Parameters.AddWithValue("@OrderId", orderId);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count > 0;
+                }
             }
         }
 

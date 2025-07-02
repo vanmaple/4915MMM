@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows.Forms;
 using DatabaseAccessController;
+using MySql.Data.MySqlClient;
 
 namespace _4915M
 {
@@ -40,6 +41,14 @@ namespace _4915M
             try
             {
                 int orderId = int.Parse(txtOrderNumber.Text.Trim());
+
+                if (!IsOrderIdExists(orderId))
+                {
+                    MessageBox.Show("The provided order number does not exist.", "Input Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 string issueType = cmbIssueType.SelectedItem.ToString();
                 string description = txtDescription.Text;
 
@@ -64,6 +73,22 @@ namespace _4915M
                     "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private bool IsOrderIdExists(int orderId)
+        {
+            string sqlCmd = @"SELECT COUNT(*) FROM orders WHERE order_id = @OrderId";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(sqlCmd, conn))
+                {
+                    cmd.Parameters.AddWithValue("@OrderId", orderId);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
 
         private void LoadAfterSalesData()
         {
